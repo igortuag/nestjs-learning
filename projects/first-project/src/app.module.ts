@@ -6,9 +6,11 @@ import { HelloController } from './hello/hello.controller';
 import { HelloService } from './hello/hello.service';
 import { UserService } from './user/user.service';
 import { UserController } from './user/user.controller';
+import { UserModule } from './user/user.module';
 
 @Module({
   imports: [
+    UserModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
       host: 'localhost',
