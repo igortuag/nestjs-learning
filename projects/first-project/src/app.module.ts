@@ -5,6 +5,7 @@ import { AppService } from './app.service';
 import { HelloController } from './hello/hello.controller';
 import { HelloService } from './hello/hello.service';
 import { UserService } from './user/user.service';
+import { UserController } from './user/user.controller';
 
 @Module({
   imports: [
@@ -19,7 +20,7 @@ import { UserService } from './user/user.service';
       synchronize: true,
     }),
   ],
-  controllers: [AppController, HelloController],
+  controllers: [AppController, HelloController, UserController],
   providers: [AppService, HelloService, UserService],
 })
 export class AppModule {}
