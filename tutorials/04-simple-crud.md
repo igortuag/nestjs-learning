@@ -29,14 +29,9 @@ export class User {
 2. Import the necessary modules:
 
 ```typescript
-import { EntityRepository, Repository } from 'typeorm';
+import { Repository } from 'typeorm';
 import { User } from './user.entity';
-```
 
-3. Define the `UserRepository` class and extend it from `Repository<User>`:
-
-```typescript
-@EntityRepository(User)
 export class UserRepository extends Repository<User> {}
 ```
 
@@ -59,8 +54,8 @@ import { UserRepository } from './user.repository';
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(UserRepository)
-    private readonly userRepository: UserRepository,
+    @InjectRepository(User)
+    private readonly userRepository: Repository<User>,
   ) {}
 
   async getAllUsers(): Promise<User[]> {
@@ -167,13 +162,4 @@ export class UserModule {}
 - **PUT** `http://localhost:3000/users/{id}` - Update a user by ID. Pass the updated user data in the request body.
 - **DELETE** `http://localhost:3000/users/{id}` - Delete a user by ID.
 
-Congratulations! You have successfully implemented CRUD operations using TypeORM in your NestJS application. You can now perform basic database operations on the `User` entity.
-
-### Next Steps
-
-- Explore more advanced features of TypeORM, such as entity relationships and complex queries.
-- Implement validation and error handling for your API endpoints.
-- Add authentication and authorization to protect your endpoints.
-- Experiment with additional entities and relationships.
-
-Feel free to customize and expand upon this tutorial to suit the needs of your application. Happy coding with NestJS and TypeORM!
+Congratulations! You have successfully implemented CRUD operations using TypeORM in your NestJS application. You can now perform basic database
