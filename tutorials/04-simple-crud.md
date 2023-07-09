@@ -29,9 +29,10 @@ export class User {
 2. Import the necessary modules:
 
 ```typescript
-import { Repository } from 'typeorm';
+import { Repository, EntityRepository } from 'typeorm';
 import { User } from './user.entity';
 
+@EntityRepository(User)
 export class UserRepository extends Repository<User> {}
 ```
 
@@ -43,7 +44,7 @@ export class UserRepository extends Repository<User> {}
 ```typescript
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Repository } from 'typeorm';
+import { Repository, FindOneOptions } from 'typeorm';
 import { User } from './user.entity';
 import { UserRepository } from './user.repository';
 ```
@@ -54,8 +55,8 @@ import { UserRepository } from './user.repository';
 @Injectable()
 export class UserService {
   constructor(
-    @InjectRepository(User)
-    private readonly userRepository: Repository<User>,
+    @InjectRepository(UserRepository)
+    private readonly userRepository: UserRepository,
   ) {}
 
   async getAllUsers(): Promise<User[]> {
@@ -63,7 +64,8 @@ export class UserService {
   }
 
   async getUserById(id: number): Promise<User> {
-    return this.userRepository.findOne(id);
+    const options: FindOneOptions<User> = { where: { id } };
+    return this.userRepository.findOne(options);
   }
 
   async createUser(user: User): Promise<User> {
@@ -162,4 +164,13 @@ export class UserModule {}
 - **PUT** `http://localhost:3000/users/{id}` - Update a user by ID. Pass the updated user data in the request body.
 - **DELETE** `http://localhost:3000/users/{id}` - Delete a user by ID.
 
-Congratulations! You have successfully implemented CRUD operations using TypeORM in your NestJS application. You can now perform basic database
+Congratulations! You have successfully implemented CRUD operations using TypeORM in your NestJS application. You can now perform basic database operations on the `User` entity.
+
+### Next Steps
+
+- Explore more advanced features of TypeORM, such as entity relationships and complex queries.
+- Implement validation and error handling for your API endpoints.
+- Add authentication and authorization to protect your endpoints.
+- Experiment with additional entities and relationships.
+
+Feel free to customize and expand upon this tutorial to suit the needs of your application. Happy coding with NestJS and TypeORM!
