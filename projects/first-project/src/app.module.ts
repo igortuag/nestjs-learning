@@ -22,7 +22,7 @@ import { UserModule } from './user/user.module';
       synchronize: true,
     }),
   ],
-  controllers: [AppController, HelloController, UserController],
-  providers: [AppService, HelloService, UserService],
+  controllers: [AppController, HelloController],
+  providers: [AppService, HelloService],
 })
 export class AppModule {}
