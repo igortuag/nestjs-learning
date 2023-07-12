@@ -16,7 +16,11 @@ export class UserService {
 
   async getUserById(id: number): Promise<User> {
     const options: FindOneOptions<User> = { where: { id } };
-    return this.userRepository.findOne(options);
+    const user = await this.userRepository.findOne(options);
+    if (user) {
+      delete user.password; // Remove the password from the returned user object
+    }
+    return user;
   }
 
   async createUser(user: User): Promise<User> {
