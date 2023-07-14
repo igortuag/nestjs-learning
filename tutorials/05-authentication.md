@@ -56,6 +56,14 @@ export class AuthService {
     // Implement your own logic to validate and retrieve a user by ID
     return this.userService.getUserById(userId);
   }
+
+  async login(user: any) {
+    // Implement your own logic to generate and return a JWT token
+    const payload = { sub: user.id, username: user.username };
+    return {
+      access_token: 'your-generated-token',
+    };
+  }
 }
 ```
 
@@ -99,17 +107,43 @@ async getUserById(id: number): Promise<User> {
 }
 ```
 
-### Step 4: Create an Authentication Controller
+### Step 4: Create an Authentication Module
 
 1. Create a new folder named `auth` in the `src` directory.
-2. Inside the `auth` folder, create a new file named `auth.controller.ts`.
-3. In the `auth.controller.ts` file, add the following code:
+2. Inside the `auth` folder, create a new file named `auth.module.ts`.
+3. In the `auth.module.ts` file, add the following code:
+
+```typescript
+import { Module } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { PassportModule } from '@nestjs/passport';
+import { AuthService } from './auth.service';
+import { JwtStrategy } from './jwt.strategy';
+import { UserModule } from '../user/user.module';
+import { AuthController } from './auth.controller';
+
+@Module({
+  imports: [
+    UserModule,
+    PassportModule,
+    JwtModule.register({
+      secret: 'your-secret-key', // Replace with your own secret key
+      signOptions: { expiresIn: '1h' },
+    }),
+  ],
+  controllers: [AuthController],
+  providers: [AuthService, JwtStrategy],
+})
+export class AuthModule {}
+```
+
+4. Create a new file named `auth.controller.ts` in the `auth` folder.
+5. In the `auth.controller.ts` file, add the following code:
 
 ```typescript
 import { Controller, Post, Request, UseGuards } from '@nestjs/common';
 import { AuthService } from './auth.service';
 import { LocalAuthGuard } from './local-auth.guard';
-import { JwtAuthGuard } from './jwt-auth.guard';
 
 @Controller('auth')
 export class AuthController {
@@ -120,17 +154,11 @@ export class AuthController {
   async login(@Request() req) {
     return this.authService.login(req.user);
   }
-
-  @UseGuards(JwtAuthGuard)
-  @Post('profile')
-  getProfile(@Request() req) {
-    return req.user;
-  }
 }
 ```
 
-4. Create a new file named `local-auth.guard.ts` in the `auth` folder.
-5. In the `local-auth.guard.ts` file, add the following code:
+6. Create a new file named `local-auth.guard.ts` in the `auth` folder.
+7. In the `local-auth.guard.ts` file, add the following code:
 
 ```typescript
 import { Injectable } from '@nestjs/common';
@@ -138,17 +166,8 @@ import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
 export class LocalAuthGuard extends AuthGuard('local') {}
-```
 
-6. Create a new file named `jwt-auth.guard.ts` in the `auth` folder.
-7. In the `jwt-auth.guard.ts` file, add the following code:
 
-```typescript
-import { Injectable } from '@nestjs/common';
-import { AuthGuard } from '@nestjs/passport';
-
-@Injectable()
-export class JwtAuthGuard extends AuthGuard('jwt') {}
 ```
 
 ### Step 5: Update the App Module
@@ -179,9 +198,16 @@ export class AppModule {}
 ### Step 6: Test the Authentication
 
 1. Start your NestJS application if it's not already running.
-2. Use an API testing tool like Postman or cURL to test the authentication endpoints:
+2. Use an API testing tool like Postman or cURL to test the authentication endpoint:
 
 - **POST** `http://localhost:3000/auth/login` - Authenticate a user and retrieve a JWT token. Pass the credentials (e.g., username and password) in the request body.
-- **POST** `http://localhost:3000/auth/profile` - Retrieve the authenticated user's profile by providing the JWT token in the request header as a bearer token.
+
+The response should contain the generated JWT token.
 
 Congratulations! You have successfully implemented authentication in your NestJS application using Passport and JWT.
+
+Feel free to explore more features and options provided by Passport and JWT to enhance the authentication functionality in your application.
+
+In the next tutorial, we can explore how to implement role-based authorization using NestJS guards.
+
+If you have any questions or run into any issues, feel free to ask. Happy coding with NestJS!
