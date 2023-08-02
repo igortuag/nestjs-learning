@@ -1,144 +1,143 @@
-## Tutorial: Implementing Authentication with NestJS and Passport
+**Tutorial 5: Adding Authentication and Authorization**
 
-In this tutorial, we will explore how to implement authentication in a NestJS application using the popular authentication middleware Passport and a JWT (JSON Web Tokens) strategy.
+In this tutorial, we will enhance our NestJS application by adding authentication and authorization to secure our API endpoints. We'll use JWT (JSON Web Tokens) for authentication and create custom decorators for authorization.
 
-### Step 1: Install Dependencies
+### Step 1: Install Required Packages
 
-1. Open a terminal and navigate to your project directory.
-2. Run the following command to install the necessary dependencies:
+First, let's install the necessary packages for authentication and authorization:
 
 ```bash
-npm install @nestjs/passport passport passport-jwt
+npm install @nestjs/jwt passport passport-jwt
 ```
 
-### Step 2: Configure Passport and JWT Strategy
+### Step 2: Configure JWT Module
 
-1. Create a new file named `jwt.strategy.ts` in a new folder called `auth`.
-2. In the `jwt.strategy.ts` file, add the following code:
+In the `app.module.ts`, import and configure the `JwtModule`:
+
+```typescript
+import { Module } from '@nestjs/common';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { JwtModule } from '@nestjs/jwt'; // Import the JwtModule
+import { AppController } from './app.controller';
+import { AppService } from './app.service';
+import { HelloController } from './hello/hello.controller';
+import { HelloService } from './hello/hello.service';
+import { UserService } from './user/user.service';
+import { UserController } from './user/user.controller';
+import { UserModule } from './user/user.module';
+
+@Module({
+  imports: [
+    UserModule,
+    TypeOrmModule.forRoot({
+      // Your TypeORM configuration
+    }),
+    JwtModule.register({
+      secret: 'your-secret-key', // Replace with your secret key
+      signOptions: { expiresIn: '1h' }, // Token expiration time
+    }),
+  ],
+  controllers: [AppController, HelloController, UserController],
+  providers: [AppService, HelloService, UserService],
+})
+export class AppModule {}
+```
+
+Replace `'your-secret-key'` with your desired secret key. It's recommended to store this key securely and not hardcode it in the codebase.
+
+### Step 3: Create an Auth Service
+
+In a new file `auth.service.ts`, create the AuthService:
+
+```typescript
+import { Injectable } from '@nestjs/common';
+import { JwtService } from '@nestjs/jwt';
+import { User } from '../user/user.entity';
+
+@Injectable()
+export class AuthService {
+  constructor(private readonly jwtService: JwtService) {}
+
+  async generateJwtToken(user: User): Promise<string> {
+    const payload = { sub: user.id, username: user.username };
+    return this.jwtService.signAsync(payload);
+  }
+}
+```
+
+The `generateJwtToken` method generates a JWT token based on the user's information. We'll use this token for authentication.
+
+### Step 4: Create a Local Strategy
+
+In a new file `local.strategy.ts`, create a local strategy for passport authentication:
 
 ```typescript
 import { Injectable, UnauthorizedException } from '@nestjs/common';
 import { PassportStrategy } from '@nestjs/passport';
-import { Strategy, ExtractJwt } from 'passport-jwt';
+import { Strategy } from 'passport-local';
 import { AuthService } from './auth.service';
+import { UserService } from '../user/user.service';
+import { User } from '../user/user.entity';
 
 @Injectable()
-export class JwtStrategy extends PassportStrategy(Strategy) {
-  constructor(private readonly authService: AuthService) {
+export class LocalStrategy extends PassportStrategy(Strategy) {
+  constructor(
+    private readonly authService: AuthService,
+    private readonly userService: UserService,
+  ) {
     super({
-      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
-      secretOrKey: 'your-secret-key', // Replace with your own secret key
+      usernameField: 'email', // Specify the field used for the username (in our case, it's the email)
     });
   }
 
-  async validate(payload: any) {
-    const user = await this.authService.validateUserById(payload.sub);
-    if (!user) {
-      throw new UnauthorizedException();
+  async validate(email: string, password: string): Promise<User> {
+    const user = await this.userService.getUserByEmail(email);
+    if (!user || !(await user.comparePassword(password))) {
+      throw new UnauthorizedException('Invalid credentials');
     }
     return user;
   }
 }
 ```
 
-3. Create a new file named `auth.service.ts` in the `auth` folder.
-4. In the `auth.service.ts` file, add the following code:
+### Step 5: Update User Entity
+
+In the `user.entity.ts`, add a method to compare the password hash:
 
 ```typescript
-import { Injectable } from '@nestjs/common';
-import { UserService } from '../user/user.service';
+import { Entity, Column, PrimaryGeneratedColumn, BeforeInsert } from 'typeorm';
+import * as bcrypt from 'bcrypt';
 
-@Injectable()
-export class AuthService {
-  constructor(private readonly userService: UserService) {}
+@Entity()
+export class User {
+  @PrimaryGeneratedColumn()
+  id: number;
 
-  async validateUserById(userId: number) {
-    // Implement your own logic to validate and retrieve a user by ID
-    return this.userService.getUserById(userId);
+  @Column()
+  username: string;
+
+  @Column({ unique: true })
+  email: string;
+
+  @Column()
+  password: string;
+
+  @BeforeInsert()
+  async hashPassword() {
+    this.password = await bcrypt.hash(this.password, 10);
   }
 
-  async login(user: any) {
-    // Implement your own logic to generate and return a JWT token
-    const payload = { sub: user.id, username: user.username };
-    return {
-      access_token: 'your-generated-token',
-    };
+  async comparePassword(password: string): Promise<boolean> {
+    return bcrypt.compare(password, this.password);
   }
 }
 ```
 
-### Step 3: Update the User Module
+The `hashPassword` method will automatically hash the password before inserting a new user into the database.
 
-1. Open the `user.module.ts` file in the `src/user` directory.
-2. Import the `PassportModule` and the `JwtStrategy`:
+### Step 6: Create an Auth Controller
 
-```typescript
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { User } from './user.entity';
-import { UserRepository } from './user.repository';
-import { UserController } from './user.controller';
-import { UserService } from './user.service';
-import { PassportModule } from '@nestjs/passport';
-import { JwtStrategy } from '../auth/jwt.strategy';
-import { AuthService } from '../auth/auth.service';
-
-@Module({
-  imports: [
-    TypeOrmModule.forFeature([User, UserRepository]),
-    PassportModule.register({ defaultStrategy: 'jwt' }),
-  ],
-  controllers: [UserController],
-  providers: [UserService, JwtStrategy, AuthService],
-})
-export class UserModule {}
-```
-
-3. Update the `getUserById()` method in the `UserService` to include the user's ID in the returned user object:
-
-```typescript
-async getUserById(id: number): Promise<User> {
-  const options: FindOneOptions<User> = { where: { id } };
-  const user = await this.userRepository.findOne(options);
-  if (user) {
-    delete user.password; // Remove the password from the returned user object
-  }
-  return user;
-}
-```
-
-### Step 4: Create an Authentication Module
-
-1. Create a new folder named `auth` in the `src` directory.
-2. Inside the `auth` folder, create a new file named `auth.module.ts`.
-3. In the `auth.module.ts` file, add the following code:
-
-```typescript
-import { Module } from '@nestjs/common';
-import { JwtModule } from '@nestjs/jwt';
-import { PassportModule } from '@nestjs/passport';
-import { AuthService } from './auth.service';
-import { JwtStrategy } from './jwt.strategy';
-import { UserModule } from '../user/user.module';
-import { AuthController } from './auth.controller';
-
-@Module({
-  imports: [
-    UserModule,
-    PassportModule,
-    JwtModule.register({
-      secret: 'your-secret-key', // Replace with your own secret key
-      signOptions: { expiresIn: '1h' },
-    }),
-  ],
-  controllers: [AuthController],
-  providers: [AuthService, JwtStrategy],
-})
-export class AuthModule {}
-```
-
-4. Create a new file named `auth.controller.ts` in the `auth` folder.
-5. In the `auth.controller.ts` file, add the following code:
+In a new file `auth.controller.ts`, create the AuthController:
 
 ```typescript
 import { Controller, Post, Request, UseGuards } from '@nestjs/common';
@@ -152,13 +151,16 @@ export class AuthController {
   @UseGuards(LocalAuthGuard)
   @Post('login')
   async login(@Request() req) {
-    return this.authService.login(req.user);
+    return this.authService.generateJwtToken(req.user);
   }
 }
 ```
 
-6. Create a new file named `local-auth.guard.ts` in the `auth` folder.
-7. In the `local-auth.guard.ts` file, add the following code:
+The `login` method in the AuthController uses the `LocalAuthGuard` to authenticate the user using the local strategy we created earlier and generates a JWT token using the `AuthService`.
+
+### Step 7: Create a Local Auth Guard
+
+In a new file `local-auth.guard.ts`, create the LocalAuthGuard:
 
 ```typescript
 import { Injectable } from '@nestjs/common';
@@ -166,48 +168,67 @@ import { AuthGuard } from '@nestjs/passport';
 
 @Injectable()
 export class LocalAuthGuard extends AuthGuard('local') {}
-
-
 ```
 
-### Step 5: Update the App Module
+### Step 8: Protect Routes with AuthGuard
 
-1. Open the `app.module.ts` file in the root directory of your project.
-2. Import the `AuthModule`:
+Update the `user.controller.ts` to protect the routes with the `AuthGuard`:
 
 ```typescript
-import { Module } from '@nestjs/common';
-import { TypeOrmModule } from '@nestjs/typeorm';
-import { UserModule } from './user/user.module';
-import { AuthModule } from './auth/auth.module';
+import { Body, Controller, Delete, Get, Param, Patch, Post, UseGuards } from '@nestjs/common';
+import { UserService } from './user.service';
+import { CreateUserDto } from './create-user.dto';
+import { UpdateUserDto } from './update-user.dto';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard'; // Import JwtAuthGuard
 
-@Module({
-  imports: [
-    TypeOrmModule.forRoot({
-      // Your database configuration
-    }),
-    UserModule,
-    AuthModule,
-  ],
-  controllers: [],
-  providers: [],
-})
-export class AppModule {}
+@Controller('users')
+export class UserController {
+  constructor(private readonly userService: UserService) {}
+
+  @Post()
+  createUser(@Body() createUserDto: CreateUserDto) {
+    return this.userService.createUser(createUserDto);
+  }
+
+  @Get(':id')
+  @UseGuards(JwtAuthGuard) // Protect the route with JwtAuthGuard
+  getUser(@Param('id') id: number) {
+    return this.userService.getUser(id);
+  }
+
+  @Patch(':id')
+  @UseGuards(JwtAuthGuard) // Protect the route with JwtAuthGuard
+  updateUser(@Param('id') id: number, @Body() updateUserDto: UpdateUserDto) {
+    return this.userService.updateUser(id, updateUserDto);
+  }
+
+  @Delete(':id')
+  @UseGuards(JwtAuthGuard) // Protect the route with JwtAuthGuard
+  deleteUser(@Param('id') id: number) {
+    return this.userService.deleteUser(id);
+  }
+}
 ```
 
-### Step 6: Test the Authentication
+### Step 9: Create a JWT Auth Guard
 
-1. Start your NestJS application if it's not already running.
-2. Use an API testing tool like Postman or cURL to test the authentication endpoint:
+In a new file `jwt-auth.guard.ts`, create the JwtAuthGuard:
 
-- **POST** `http://localhost:3000/auth/login` - Authenticate a user and retrieve a JWT token. Pass the credentials (e.g., username and password) in the request body.
+```typescript
+import { Injectable } from '@nestjs/common';
+import { AuthGuard } from '@nestjs/passport';
 
-The response should contain the generated JWT token.
+@Injectable()
+export class JwtAuthGuard extends AuthGuard('jwt') {}
+```
 
-Congratulations! You have successfully implemented authentication in your NestJS application using Passport and JWT.
+### Step 10: Update App Controller
 
-Feel free to explore more features and options provided by Passport and JWT to enhance the authentication functionality in your application.
+In the `app.controller.ts`, add a protected route that requires authentication:
 
-In the next tutorial, we can explore how to implement role-based authorization using NestJS guards.
+```typescript
+import { Controller, Get, Request, UseGuards } from '@nestjs/common';
+import { JwtAuthGuard } from '../auth/jwt-auth.guard'; // Import JwtAuthGuard
 
-If you have any questions or run into any issues, feel free to ask. Happy coding with NestJS!
+@Controller()
+export class
