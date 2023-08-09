@@ -5,4 +5,10 @@ export class UpdateUserDto {
   @IsString()
   @MinLength(3)
   username: string;
+
+  transformToUserEntity() {
+    const userEntity = new UserEntity();
+    userEntity.username = this.username;
+    return userEntity;
+  }
 }
