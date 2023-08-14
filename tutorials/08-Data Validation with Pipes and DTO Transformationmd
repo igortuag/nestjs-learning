@@ -1,4 +1,4 @@
-**Tutorial 7: Data Validation with Pipes and DTO Transformation**
+**Tutorial 8: Data Validation with Pipes and DTO Transformation**
 
 In this tutorial, we will focus on data validation and data transformation in NestJS using Pipes and Data Transfer Objects (DTOs). Pipes help us validate and transform incoming data before it reaches our application's business logic, while DTOs provide a standardized way to define and handle data in our APIs.
 
