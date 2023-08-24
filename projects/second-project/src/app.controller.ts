@@ -20,7 +20,7 @@ export class AppController {
     })
 
     return {
-      message: 'Hello World!'
+      member
     }
   }
 }
