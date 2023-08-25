@@ -1,5 +1,6 @@
 import { Controller, Get } from '@nestjs/common';
 import { PrismaService } from './database/prisma.service';
+import { randomUUID } from 'node:crypto'
 
 @Controller()
 export class AppController {
@@ -13,7 +14,7 @@ export class AppController {
   async getHello() {
     const member = await this.prisma.teamMember.create({
       data: {
-        id: '1',
+        id: randomUUID(),
         name: 'John Doe',
         function: 'CEO',
       }
