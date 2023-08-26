@@ -1,4 +1,4 @@
-import { Controller, Get } from '@nestjs/common';
+import { Body, Controller, Get } from '@nestjs/common';
 import { PrismaService } from './database/prisma.service';
 import { randomUUID } from 'node:crypto'
 
@@ -11,7 +11,7 @@ export class AppController {
   }
 
   @Get('hello')
-  async getHello() {
+  async getHello(@Body() body: any) {
     const member = await this.prisma.teamMember.create({
       data: {
         id: randomUUID(),
