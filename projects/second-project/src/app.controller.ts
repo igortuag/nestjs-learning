@@ -12,6 +12,8 @@ export class AppController {
 
   @Get('hello')
   async getHello(@Body() body: any) {
+    console.log(body)
+
     const member = await this.prisma.teamMember.create({
       data: {
         id: randomUUID(),
