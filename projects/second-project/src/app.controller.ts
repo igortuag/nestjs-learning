@@ -1,6 +1,7 @@
 import { Body, Controller, Get } from '@nestjs/common';
 import { PrismaService } from './database/prisma.service';
 import { randomUUID } from 'node:crypto'
+import { CreateTeamMemberBody } from './dtos/create-team-member-body';
 
 @Controller()
 export class AppController {
@@ -11,7 +12,7 @@ export class AppController {
   }
 
   @Get('hello')
-  async getHello(@Body() body: any) {
+  async getHello(@Body() body: CreateTeamMemberBody) {
    const {name, function: func} = body
 
     const member = await this.prisma.teamMember.create({
