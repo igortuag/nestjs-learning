@@ -4,6 +4,8 @@ export class CreateTeamMemberBody {
   @IsNotEmpty()
   name: string;
   
-  @IsNotEmpty()
+  @IsNotEmpty({
+    message: 'The member function should not be empty or undefine'
+  })
   function: string;
 }
