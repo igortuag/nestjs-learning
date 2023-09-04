@@ -1,7 +1,9 @@
 import { PrismaService } from "src/database/prisma.service";
 import { TeamMemberRepository } from "../team-member-repository";
 import { randomUUID } from "node:crypto";
+import { Injectable } from "@nestjs/common";
 
+@Injectable()
 export class PrismaTeamMemberRepository implements TeamMemberRepository {
   constructor(private prisma: PrismaService) { }
 
