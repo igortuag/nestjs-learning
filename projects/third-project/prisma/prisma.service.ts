@@ -13,10 +13,10 @@ export class PrismaService extends PrismaClient
   }
 
   onModuleInit() {
-    throw new Error('Method not implemented.');
+    return this.$connect();
   }
 
   onModuleDestroy() {
-    throw new Error('Method not implemented.');
+    return this.$disconnect();
   }
 }
