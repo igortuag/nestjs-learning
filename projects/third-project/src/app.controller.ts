@@ -11,6 +11,6 @@ export class AppController {
 
   @Get('/hello')
   getHello(): string {
-    return this.prisma.test();
+    return this.prisma.client.findMany();
   }
 }
