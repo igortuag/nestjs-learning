@@ -10,7 +10,7 @@ export class AppController {
   ) { }
 
   @Get('/hello')
-  getHello(): string {
-    return this.prisma.client.findMany();
+  async getHello(): Promise<string> {
+    return await this.prisma.client.findMany();
   }
 }
