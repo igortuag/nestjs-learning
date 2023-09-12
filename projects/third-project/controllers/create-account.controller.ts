@@ -1,3 +1,4 @@
+import { ConflictException } from "@nestjs/common";
 import { Body, Controller, HttpCode, Post } from "@nestjs/common";
 import { PrismaService } from "prisma/prisma.service";
 
@@ -17,9 +18,7 @@ export class CreateAccountController {
     });
 
     if (userAlreadyExists) {
-      return {
-        error: 'User already exists',
-      };
+      throw new ConflictException('User already exists');
     }
 
     await this.prisma.user.create({
