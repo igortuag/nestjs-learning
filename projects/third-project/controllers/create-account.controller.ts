@@ -10,6 +10,18 @@ export class CreateAccountController {
   async handle(@Body() body: any) {
     const { name, email, password } = body;
 
+    const userAlreadyExists = await this.prisma.user.findUnique({
+      where: {
+        email,
+      }
+    });
+
+    if (userAlreadyExists) {
+      return {
+        error: 'User already exists',
+      };
+    }
+
     await this.prisma.user.create({
       data: {
         name,
