@@ -1,4 +1,6 @@
-POST http://localhost:3333/accounts
+@baseURL = http://localhost:3333
+
+POST {{baseURL}}/accounts
 Content-Type: application/json
 
 {
