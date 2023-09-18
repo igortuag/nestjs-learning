@@ -6,8 +6,8 @@ import { Env } from 'prisma/env';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
 
-  const configService = app.get<ConfigService<Env>>(ConfigService);
-  const port = configService.get('PORT');
+  const configService = app.get<ConfigService<Env, true>>(ConfigService);
+  const port = configService.get('PORT', { infer: true });
 
   await app.listen(port);
 }
