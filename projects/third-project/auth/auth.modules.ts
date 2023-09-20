@@ -9,7 +9,13 @@ import { Env } from 'prisma/env';
     PassportModule,
     JwtModule.registerAsync({
       inject: [ConfigService],
-      useFactory(config: ConfigService<Env, true>) { },
+      useFactory(config: ConfigService<Env, true>) {
+        const secret = config.get('JWT_SECRET', { infer: true });
+
+        return {
+          secret,
+        }
+      },
     })
   ]
 })
