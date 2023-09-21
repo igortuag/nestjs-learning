@@ -14,6 +14,7 @@ import { Env } from 'prisma/env';
         const publicKey = config.get('JWT_PUBLIC_KEY', { infer: true });
 
         return {
+          signOptions: {algorithm: 'RS256'},
           privateKey,
           publicKey,
         }
