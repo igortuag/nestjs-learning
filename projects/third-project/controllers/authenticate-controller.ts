@@ -1,5 +1,6 @@
-import { Controller, Post } from "@nestjs/common";
+import { Controller, Post, UsePipes } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
+import { ZodValidationPipe } from "pipes/zod-validation-pipes";
 import { z } from "zod";
 
 const authenticateBodySchema = z.object({
@@ -7,11 +8,14 @@ const authenticateBodySchema = z.object({
   password: z.string(),
 })
 
+type AuthenticateBody = z.infer<typeof authenticateBodySchema>
+
 @Controller('/sessions')
 export class AuthController {
   constructor(private jwt: JwtService) { }
 
   @Post()
+  @UsePipes(new ZodValidationPipe(authenticateBodySchema))
   async handle() {
     const token = this.jwt.sign({ sub: 'user-id' });
 
