@@ -1,4 +1,4 @@
-import { Controller, Post, UsePipes } from "@nestjs/common";
+import { Body, Controller, Post, UsePipes } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { ZodValidationPipe } from "pipes/zod-validation-pipes";
 import { z } from "zod";
@@ -16,7 +16,8 @@ export class AuthController {
 
   @Post()
   @UsePipes(new ZodValidationPipe(authenticateBodySchema))
-  async handle() {
+  async handle(@Body() body: AuthenticateBody) {
+    const { email, password } = body
     const token = this.jwt.sign({ sub: 'user-id' });
 
     return token
