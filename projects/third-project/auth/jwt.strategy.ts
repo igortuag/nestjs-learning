@@ -1,4 +1,14 @@
+import { ConfigService } from "@nestjs/config";
 import { PassportStrategy } from "@nestjs/passport";
-import { Strategy } from 'passport-jwt'
+import { ExtractJwt, Strategy } from 'passport-jwt'
+import { Env } from "prisma/env";
 
-export class JwtStrategy extends PassportStrategy(Strategy) { }
+export class JwtStrategy extends PassportStrategy(Strategy) {
+  constructor(config: ConfigService<Env, true>) {
+    const publicKey = config.get('JWT_PUBLIC_KEY', { infer: true })
+
+    super({
+      jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
+    })
+  }
+}
