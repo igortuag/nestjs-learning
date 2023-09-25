@@ -1,9 +1,9 @@
 import { Controller, Post, UseGuards } from "@nestjs/common";
-import { AuthGuard } from "@nestjs/passport";
+import { JwtAuthGuard } from "auth/jwt-auth.guard";
 import { PrismaService } from "prisma/prisma.service";
 
 @Controller('/questions')
-@UseGuards(AuthGuard('jwt'))
+  @UseGuards(JwtAuthGuard)
 export class CreateQuestionController {
   constructor(
     private prisma: PrismaService) { }
