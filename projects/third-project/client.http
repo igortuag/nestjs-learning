@@ -25,3 +25,4 @@ Content-Type: application/json
 # @name create_question
 POST {{baseURL}}/sessions
 Content-Type: application/json
+Authorization: Bearer TOKEN_HERE
