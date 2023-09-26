@@ -11,6 +11,8 @@ export class CreateQuestionController {
 
   @Post()
   async handle(@Req() request: Request) {
+    console.log(request.user)
+
     return "ok"
   }
 }
