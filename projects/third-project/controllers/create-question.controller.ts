@@ -4,17 +4,24 @@ import { JwtAuthGuard } from "auth/jwt-auth.guard";
 import { TokenPayloadSchema } from "auth/jwt.strategy";
 import { Request } from "express";
 import { PrismaService } from "prisma/prisma.service";
+import { z } from "zod";
 
-@Controller('/questions')
-  @UseGuards(JwtAuthGuard)
+const createQuestionBodySchema = z.object({
+  title: z.string(),
+  content: z.string()
+});
+
+type CreateQuestionBody = z.infer<typeof createQuestionBodySchema>;
+
+@Controller("/questions")
+@UseGuards(JwtAuthGuard)
 export class CreateQuestionController {
-  constructor(
-    private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) { }
 
   @Post()
   async handle(@CurrentUser() user: TokenPayloadSchema) {
-    console.log(user)
+    console.log(user);
 
-    return "ok"
+    return "ok";
   }
 }
