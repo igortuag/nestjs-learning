@@ -26,6 +26,14 @@ export class CreateQuestionController {
   ) {
     const { title, content } = body;
 
+    await this.prisma.question.create({
+      data: {
+        title,
+        content,
+        slug: title.toLowerCase().replace(/ /g, "-"),
+      }
+    })
+
     return "ok";
   }
 }
