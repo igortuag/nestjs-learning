@@ -24,7 +24,7 @@ export class CreateQuestionController {
     @CurrentUser() user: TokenPayloadSchema,
     @Body(new ZodValidationPipe(createQuestionBodySchema)) body: CreateQuestionBody,
   ) {
-    console.log(user);
+    const { title, content } = body;
 
     return "ok";
   }
