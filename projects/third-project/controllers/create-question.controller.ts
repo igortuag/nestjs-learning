@@ -31,20 +31,20 @@ export class CreateQuestionController {
       data: {
         title,
         content,
-        slug: convertToSlug(title),
+        slug: this.convertToSlug(title),
         authorId: userId
       }
     })
 
     return "ok";
   }
-}
 
-function convertToSlug(title: string) {
-  return title
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "")
-    .replace(/[^\w\s-]/g, "")
-    .replace(/[^\s+]/g, "-")
+  private convertToSlug(title: string) {
+    return title
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^\w\s-]/g, "")
+      .replace(/[^\s+]/g, "-")
+  }
 }
