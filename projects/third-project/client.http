@@ -27,3 +27,8 @@ Content-Type: application/json
 POST {{baseURL}}/sessions
 Content-Type: application/json
 Authorization: Bearer {{authToken}}
+
+{
+  "title": "How to create a question?",
+  "body": "I'm trying to create a question using the API, but I'm not sure how to do it. Can someone help me?"
+}
