@@ -14,7 +14,7 @@ import { PrismaService } from 'prisma/prisma.service';
   }),
     AuthModule
   ],
-  controllers: [CreateAccountController, AuthController, CreateQuestionController],
+  controllers: [CreateAccountController, AuthController, CreateQuestionController, FetchRecentQuestionsController],
   providers: [PrismaService],
 })
 export class AppModule { }
