@@ -5,7 +5,7 @@ import { PrismaService } from "prisma/prisma.service";
 @Controller("/questions")
 @UseGuards(JwtAuthGuard)
 export class FetchRecentQuestionsController {
-  constructor(private prisma: PrismaService) { }
+  constructor(private prisma: PrismaService) {}
 
   @Get()
   async handle() {
