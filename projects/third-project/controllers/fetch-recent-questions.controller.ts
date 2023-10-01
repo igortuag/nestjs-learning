@@ -1,4 +1,4 @@
-import { Controller, UseGuards } from "@nestjs/common";
+import { Controller, Get, UseGuards } from "@nestjs/common";
 import { JwtAuthGuard } from "auth/jwt-auth.guard";
 import { PrismaService } from "prisma/prisma.service";
 
@@ -9,6 +9,10 @@ export class FetchRecentQuestionsController {
 
   @Get()
   async handle() {
-    return "ok";
+    const questions = await this.prisma.question.findMany({
+      orderBy: { createdAt: "desc" }
+    });
+
+    return { questions };
   }
 }
