@@ -10,6 +10,8 @@ function generateUniqueDatabaseURL(schemaId: string) {
   const url = new URL(process.env.DATABASE_URL);
 
   url.searchParams.set("schema", schemaId);
+
+  return url.toString();
 }
 
 beforeAll(async () => {
