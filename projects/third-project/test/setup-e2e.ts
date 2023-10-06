@@ -18,7 +18,7 @@ function generateUniqueDatabaseURL(schemaId: string) {
 beforeAll(async () => {
   const databaseUrl = generateUniqueDatabaseURL(randomUUID());
 
-  console.log(`Using database URL: ${databaseUrl}`);
+  process.env.DATABASE_URL = databaseUrl;
 
   await prisma.$connect();
 });
