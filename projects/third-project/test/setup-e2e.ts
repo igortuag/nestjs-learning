@@ -4,6 +4,7 @@ import { randomUUID } from "crypto";
 import "dotenv/config";
 
 const prisma = new PrismaClient();
+const schemaRandomId = randomUUID();
 
 function generateUniqueDatabaseURL(schemaId: string) {
   if (!process.env.DATABASE_URL) {
@@ -17,7 +18,7 @@ function generateUniqueDatabaseURL(schemaId: string) {
 }
 
 beforeAll(async () => {
-  const databaseUrl = generateUniqueDatabaseURL(randomUUID());
+  const databaseUrl = generateUniqueDatabaseURL(schemaRandomId);
 
   process.env.DATABASE_URL = databaseUrl;
 
@@ -25,5 +26,7 @@ beforeAll(async () => {
 });
 
 afterAll(async () => {
-  await prisma.$disconnect();
+  await prisma.$executeRawUnsafe(
+    `DROP SCHEMA IF EXISTS ${schemaRandomId} CASCADE;`
+  );
 });
