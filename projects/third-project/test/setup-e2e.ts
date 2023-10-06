@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { randomUUID } from "crypto";
 import "dotenv/config";
 
 const prisma = new PrismaClient();
@@ -15,6 +16,10 @@ function generateUniqueDatabaseURL(schemaId: string) {
 }
 
 beforeAll(async () => {
+  const databaseUrl = generateUniqueDatabaseURL(randomUUID());
+
+  console.log(`Using database URL: ${databaseUrl}`);
+
   await prisma.$connect();
 });
 
