@@ -1,4 +1,5 @@
 import { PrismaClient } from "@prisma/client";
+import { execSync } from "child_process";
 import { randomUUID } from "crypto";
 import "dotenv/config";
 
@@ -20,7 +21,7 @@ beforeAll(async () => {
 
   process.env.DATABASE_URL = databaseUrl;
 
-  await prisma.$connect();
+  execSync("npm prisma migrate deploy");
 });
 
 afterAll(async () => {
