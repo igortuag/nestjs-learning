@@ -28,5 +28,13 @@ test("Create account (E2E)", () => {
     });
 
     expect(response.status).toBe(201);
+
+    const userOnDatabase = await prisma.user.findUnique({
+      where: {
+        email: "johndoe@example.com"
+      }
+    });
+
+    expect(userOnDatabase).toBeTruthy();
   });
 });
