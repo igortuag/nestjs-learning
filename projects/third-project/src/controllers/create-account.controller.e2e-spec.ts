@@ -6,7 +6,7 @@ import request from "supertest";
 
 test("Create account (E2E)", () => {
   let app: INestApplication;
-  prisma: PrismaService;
+  let prisma: PrismaService;
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
@@ -14,6 +14,9 @@ test("Create account (E2E)", () => {
     }).compile();
 
     app = module.createNestApplication();
+
+    prisma = module.get(PrismaService);
+
     await app.init();
   });
 
