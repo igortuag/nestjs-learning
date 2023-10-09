@@ -1,12 +1,14 @@
 import { AppModule } from "@/app.module";
 import { PrismaService } from "@/prisma/prisma.service";
 import { INestApplication } from "@nestjs/common";
+import { JwtService } from "@nestjs/jwt";
 import { Test } from "@nestjs/testing";
 import request from "supertest";
 
 test("Create question (E2E)", () => {
   let app: INestApplication;
   let prisma: PrismaService;
+  let jwt: JwtService;
 
   beforeAll(async () => {
     const module = await Test.createTestingModule({
@@ -16,11 +18,18 @@ test("Create question (E2E)", () => {
     app = module.createNestApplication();
 
     prisma = module.get(PrismaService);
+    jwt = module.get(JwtService);
 
     await app.init();
   });
 
   test("[POST] /questions", async () => {
+    const user = await prisma.user.create({
+      name: "John Doe",
+      email: "johndoe@example.com",
+      password: await hash("123456", 8)
+    });
+
     const response = await request(app.getHttpServer())
       .post("/questions")
       .send({
