@@ -43,12 +43,12 @@ test("Create question (E2E)", () => {
 
     expect(response.status).toBe(201);
 
-    const userOnDatabase = await prisma.user.findUnique({
+    const questionOnDatabase = await prisma.user.findFirst({
       where: {
-        email: "johndoe@example.com"
+        title: "How to create a question?"
       }
     });
 
-    expect(userOnDatabase).toBeTruthy();
+    expect(questionOnDatabase).toBeTruthy();
   });
 });
