@@ -68,22 +68,10 @@ test("Fetch recent questions (E2E)", () => {
     });
 
     const response = await request(app.getHttpServer())
-      .post("/questions")
-      .set("Authorization", `Bearer ${accessToken}`)
-      .send({
-        title: "How to create a question?",
-        content:
-          "I am trying to create a question here, but I do not know how to do it."
-      });
+      .get("/questions")
+      .set("Authorization", `Bearer ${accessToken}`);
 
-    expect(response.status).toBe(201);
-
-    const questionOnDatabase = await prisma.user.findFirst({
-      where: {
-        title: "How to create a question?"
-      }
-    });
-
-    expect(questionOnDatabase).toBeTruthy();
+    expect(response.status).toBe(200);
+    expect(response.body).toHaveLength(5);
   });
 });
