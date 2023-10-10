@@ -72,6 +72,15 @@ test("Fetch recent questions (E2E)", () => {
       .set("Authorization", `Bearer ${accessToken}`);
 
     expect(response.status).toBe(200);
-    expect(response.body).toHaveLength(5);
+    expect(response.body).toEqual({
+      questions: [
+        expect.objectContaining({
+          title: "How to create a question?"
+        }),
+        expect.objectContaining({
+          title: "How to create a question?"
+        })
+      ]
+    });
   });
 });
